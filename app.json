@@ -1,7 +1,7 @@
 {
   "name": "WagtailBakeryDemo",
   "description": "WagtailBakeryDemo",
-  "repository": "https://github.com/wagtail/bakerydemo",
+  "repository": "https://github.com/gasman/bakerydemo",
   "keywords": ["wagtail", "django"],
   "env": {
     "DJANGO_DEBUG": "off",
