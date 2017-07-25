@@ -6,3 +6,4 @@ django-dotenv==1.4.1
 wagtail==1.11
 wagtailfontawesome==1.0.6
 Pillow==4.0.0
+django-saml2-auth>=2.1,<2.2

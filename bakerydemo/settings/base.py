@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'modelcluster',
     'taggit',
     'wagtailfontawesome',
+    'django_saml2_auth',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -175,3 +176,23 @@ WAGTAILSEARCH_BACKENDS = {
 
 # Wagtail settings
 WAGTAIL_SITE_NAME = "bakerydemo"
+
+SAML2_AUTH = {
+    'METADATA_AUTO_CONF_URL': 'https://dev-158770.oktapreview.com/app/exkbdiwfhgiTL22hO0h7/sso/saml/metadata',
+    'ATTRIBUTES_MAP': {  # Change Email/UserName/FirstName/LastName to corresponding SAML2 userprofile attributes.
+        'email': 'email',
+        'username': 'username',
+        'first_name': 'firstName',
+        'last_name': 'lastName',
+    },
+    'NEW_USER_PROFILE': {
+        'USER_GROUPS': [],  # The default group name when a new user logs in
+        'ACTIVE_STATUS': True,  # The default active status for new users
+        'STAFF_STATUS': False,  # The staff status for new users
+        'SUPERUSER_STATUS': False,  # The superuser status for new users
+    },
+    'TRIGGER': {
+        'BEFORE_LOGIN': 'bakerydemo.base.auth.init_user',
+        'CREATE_USER': 'bakerydemo.base.auth.init_user',
+    },
+}
