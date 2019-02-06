@@ -18,6 +18,7 @@ from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 
 from bakerydemo.base.blocks import BaseStreamBlock
+from bakerydemo.person_chooser.widgets import AdminPersonChooser
 
 
 class BlogPeopleRelationship(Orderable, models.Model):
@@ -35,7 +36,7 @@ class BlogPeopleRelationship(Orderable, models.Model):
         'base.People', related_name='person_blog_relationship', on_delete=models.CASCADE
     )
     panels = [
-        SnippetChooserPanel('people')
+        FieldPanel('people', widget=AdminPersonChooser)
     ]
 
 
