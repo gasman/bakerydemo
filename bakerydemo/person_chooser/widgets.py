@@ -20,7 +20,7 @@ class AdminPersonChooser(AdminChooser):
         return reverse('wagtailsnippets:edit', args=('base', 'people', quote(item.pk)))
 
     def render_js_init(self, id_, name, value):
-        return "createPersonChooser({0});".format(json.dumps(id_))
+        return "createPersonChooser({0}, 'personChosen');".format(json.dumps(id_))
 
     class Media:
         js = [
