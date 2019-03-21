@@ -1,4 +1,6 @@
+from django.contrib.admin.utils import quote
 from django.forms import widgets
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from wagtail.utils.widgets import WidgetWithScript
@@ -12,6 +14,11 @@ class AdminChooser(WidgetWithScript, widgets.Input):
     link_to_chosen_text = _("Edit this item")
     show_edit_link = True
     classname = None  # CSS class for the top-level element
+
+    # URL route name for editing an existing item - should return the URL of the item's edit view
+    # when reversed with the item's quoted PK as its only argument. If no suitable URL route exists
+    # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
+    edit_item_url_name = None
 
     # when looping over form fields, this one should appear in visible_fields, not hidden_fields
     # despite the underlying input being type="hidden"
@@ -37,6 +44,12 @@ class AdminChooser(WidgetWithScript, widgets.Input):
                 return (model_class.objects.get(pk=value), value)
             except model_class.DoesNotExist:
                 return (None, None)
+
+    def get_edit_item_url(self, instance):
+        if self.edit_item_url_name is None:
+            return None
+        else:
+            return reverse(self.edit_item_url_name, args=(quote(instance.pk),))
 
     def value_from_datadict(self, data, files, name):
         # treat the empty string as None

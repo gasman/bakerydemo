@@ -9,15 +9,17 @@
 <div id="{{ attrs.id }}-chooser" class="chooser {% block chooser_class %}{{ widget.classname }}{% endblock %} {% if not value %}blank{% endif %}">
 
     <div class="chosen">
-        {% block chosen_state_view %}{% endblock %}
+        {% block chosen_state_view %}
+            <span class="title">{{ item }}</span>
+        {% endblock %}
 
         <ul class="actions">
             {% if not widget.is_required %}
                 <li><button type="button" class="button action-clear button-small button-secondary">{{ widget.clear_choice_text }}</button></li>
             {% endif %}
             <li><button type="button" class="button action-choose button-small button-secondary">{{ widget.choose_another_text }}</button></li>
-            {% if widget.show_edit_link %}
-                <li><a href="{% block edit_chosen_item_url %}#{% endblock %}" class="edit-link button button-small button-secondary" target="_blank" rel="noopener noreferrer">{{ widget.link_to_chosen_text }}</a></li>
+            {% if widget.show_edit_link and edit_item_url %}
+                <li><a href="{{ edit_item_url }}" class="edit-link button button-small button-secondary" target="_blank" rel="noopener noreferrer">{{ widget.link_to_chosen_text }}</a></li>
             {% endif %}
         </ul>
     </div>

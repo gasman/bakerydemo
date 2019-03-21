@@ -1,8 +1,0 @@
-{% extends "generic_chooser/widgets/chooser.html" %}
-{% load wagtailadmin_tags %}
-
-{% block chosen_state_view %}
-    <span class="title">{{ item }}</span>
-{% endblock %}
-
-{% block edit_chosen_item_url %}{% if item %}{% url 'wagtailsnippets:edit' 'base' 'people' item.pk|admin_urlquote %}{% endif %}{% endblock %}
