@@ -1,9 +1,12 @@
-function createChooserWidget(id, modalWorkflowResponseName) {
+function createChooserWidget(id, opts) {
     /*
     id = the ID of the HTML element where chooser behaviour should be attached
-    modalWorkflowResponseName = the response identifier returned by the modal workflow to
-        indicate that an item has been chosen. Defaults to 'chosen'.
+    opts = dictionary of configuration options, which may include:
+        modalWorkflowResponseName = the response identifier returned by the modal workflow to
+            indicate that an item has been chosen. Defaults to 'chosen'.
     */
+
+    opts = opts || {};
 
     var chooserElement = $('#' + id + '-chooser');
     var docTitle = chooserElement.find('.title');
@@ -12,7 +15,7 @@ function createChooserWidget(id, modalWorkflowResponseName) {
 
     $('.action-choose', chooserElement).on('click', function() {
         var responses = {};
-        responses[modalWorkflowResponseName || 'chosen'] = function(snippetData) {
+        responses[opts.modalWorkflowResponseName || 'chosen'] = function(snippetData) {
             input.val(snippetData.id);
             docTitle.text(snippetData.string);
             chooserElement.removeClass('blank');
