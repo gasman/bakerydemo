@@ -11,6 +11,7 @@ class AdminChooser(WidgetWithScript, widgets.Input):
     clear_choice_text = _("Clear choice")
     link_to_chosen_text = _("Edit this item")
     show_edit_link = True
+    classname = None  # CSS class for the top-level element
 
     # when looping over form fields, this one should appear in visible_fields, not hidden_fields
     # despite the underlying input being type="hidden"
