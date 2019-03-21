@@ -1,4 +1,4 @@
-function createPersonChooser(id, modalWorkflowResponseName) {
+function createChooserWidget(id, modalWorkflowResponseName) {
     /*
     id = the ID of the HTML element where chooser behaviour should be attached
     modalWorkflowResponseName = the response identifier returned by the modal workflow to

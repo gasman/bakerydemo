@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.admin.utils import quote
 from django.forms import widgets
 from django.template.loader import render_to_string
@@ -94,6 +96,9 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             'choose_modal_url': self.get_choose_modal_url(),
         })
 
+    def render_js_init(self, id_, name, value):
+        return "createChooserWidget({0});".format(json.dumps(id_))
+
     def __init__(self, **kwargs):
         # allow choose_one_text / choose_another_text to be overridden per-instance
         if 'choose_one_text' in kwargs:
@@ -107,3 +112,9 @@ class AdminChooser(WidgetWithScript, widgets.Input):
         if 'show_edit_link' in kwargs:
             self.show_edit_link = kwargs.pop('show_edit_link')
         super().__init__(**kwargs)
+
+    class Media:
+        js = [
+            'generic_chooser/js/chooser-modal.js',
+            'generic_chooser/js/chooser-widget.js',
+        ]
