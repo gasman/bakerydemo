@@ -14,6 +14,7 @@ class AdminPersonChooser(AdminChooser):
     choose_another_text = _('Choose another person')
     link_to_chosen_text = _('Edit this person')
     model = People
+    choose_modal_url_name = 'person_chooser:choose_person'
 
     def get_edit_item_url(self, item):
         return reverse('wagtailsnippets:edit', args=('base', 'people', quote(item.pk)))

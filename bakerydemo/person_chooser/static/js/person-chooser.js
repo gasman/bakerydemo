@@ -6,7 +6,7 @@ function createPersonChooser(id, modelString) {
 
     $('.action-choose', chooserElement).on('click', function() {
         ModalWorkflow({
-            url: '/admin/people/chooser/',
+            url: chooserElement.data('choose-modal-url'),
             onload: PERSON_CHOOSER_MODAL_ONLOAD_HANDLERS,
             responses: {
                 personChosen: function(snippetData) {

@@ -21,6 +21,13 @@ class AdminChooser(WidgetWithScript, widgets.Input):
     # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
     edit_item_url_name = None
 
+    # URL route name for the chooser modal view - should return the URL of the chooser view when
+    # reversed with no arguments. If no suitable URL route exists, subclasses can override
+    # get_choose_modal_url instead.
+    # This will appear as the attribute data-choose-modal-url on the top-level element of the
+    # chooser widget.
+    choose_modal_url_name = None
+
     template = "generic_chooser/widgets/chooser.html"
 
     # when looping over form fields, this one should appear in visible_fields, not hidden_fields
@@ -54,6 +61,12 @@ class AdminChooser(WidgetWithScript, widgets.Input):
         else:
             return reverse(self.edit_item_url_name, args=(quote(instance.pk),))
 
+    def get_choose_modal_url(self):
+        if self.choose_modal_url_name is None:
+            return None
+        else:
+            return reverse(self.choose_modal_url_name)
+
     def value_from_datadict(self, data, files, name):
         # treat the empty string as None
         result = super().value_from_datadict(data, files, name)
@@ -78,6 +91,7 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             'value': value,
             'item': instance,
             'edit_item_url': edit_item_url,
+            'choose_modal_url': self.get_choose_modal_url(),
         })
 
     def __init__(self, **kwargs):
