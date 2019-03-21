@@ -1,5 +1,6 @@
 from django.contrib.admin.utils import quote
 from django.forms import widgets
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -19,6 +20,8 @@ class AdminChooser(WidgetWithScript, widgets.Input):
     # when reversed with the item's quoted PK as its only argument. If no suitable URL route exists
     # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
     edit_item_url_name = None
+
+    template = "generic_chooser/widgets/chooser.html"
 
     # when looping over form fields, this one should appear in visible_fields, not hidden_fields
     # despite the underlying input being type="hidden"
@@ -58,6 +61,24 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             return None
         else:
             return result
+
+    def render_html(self, name, value, attrs):
+        instance, value = self.get_instance_and_id(self.model, value)
+        original_field_html = super().render_html(name, value, attrs)
+
+        if instance is None:
+            edit_item_url = None
+        else:
+            edit_item_url = self.get_edit_item_url(instance)
+
+        return render_to_string(self.template, {
+            'widget': self,
+            'original_field_html': original_field_html,
+            'attrs': attrs,
+            'value': value,
+            'item': instance,
+            'edit_item_url': edit_item_url,
+        })
 
     def __init__(self, **kwargs):
         # allow choose_one_text / choose_another_text to be overridden per-instance
