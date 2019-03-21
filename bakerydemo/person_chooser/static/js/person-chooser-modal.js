@@ -6,7 +6,7 @@ PERSON_CHOOSER_MODAL_ONLOAD_HANDLERS = {
         });
     },
     'chosen': function(modal, jsonData) {
-        modal.respond('personChosen', jsonData['result']);
+        modal.respond('chosen', jsonData['result']);
         modal.close();
     }
 };
