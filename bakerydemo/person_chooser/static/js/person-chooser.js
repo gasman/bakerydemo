@@ -21,7 +21,7 @@ function createPersonChooser(id, modalWorkflowResponseName) {
 
         ModalWorkflow({
             url: chooserElement.data('choose-modal-url'),
-            onload: PERSON_CHOOSER_MODAL_ONLOAD_HANDLERS,
+            onload: GENERIC_CHOOSER_MODAL_ONLOAD_HANDLERS,
             responses: responses
         });
     });

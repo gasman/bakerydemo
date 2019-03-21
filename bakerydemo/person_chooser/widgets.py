@@ -24,6 +24,6 @@ class AdminPersonChooser(AdminChooser):
 
     class Media:
         js = [
-            'js/person-chooser-modal.js',
+            'generic_chooser/js/chooser-modal.js',
             'js/person-chooser.js',
         ]

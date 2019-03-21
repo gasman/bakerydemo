@@ -1,4 +1,4 @@
-PERSON_CHOOSER_MODAL_ONLOAD_HANDLERS = {
+GENERIC_CHOOSER_MODAL_ONLOAD_HANDLERS = {
     'choose': function(modal, jsonData) {
         $('a.item-choice', modal.body).on('click', function() {
             modal.loadUrl(this.href);
