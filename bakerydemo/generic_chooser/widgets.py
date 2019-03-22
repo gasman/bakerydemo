@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.admin.utils import quote
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import widgets
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -36,26 +37,8 @@ class AdminChooser(WidgetWithScript, widgets.Input):
     # despite the underlying input being type="hidden"
     is_hidden = False
 
-    def get_instance(self, model_class, value):
-        # helper method for cleanly turning 'value' into an instance object
-        if value is None:
-            return None
-
-        try:
-            return model_class.objects.get(pk=value)
-        except model_class.DoesNotExist:
-            return None
-
-    def get_instance_and_id(self, model_class, value):
-        if value is None:
-            return (None, None)
-        elif isinstance(value, model_class):
-            return (value, value.pk)
-        else:
-            try:
-                return (model_class.objects.get(pk=value), value)
-            except model_class.DoesNotExist:
-                return (None, None)
+    def get_instance(self, value):
+        return self.model.objects.get(pk=value)
 
     def get_edit_item_url(self, instance):
         if self.edit_item_url_name is None:
@@ -78,7 +61,15 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             return result
 
     def render_html(self, name, value, attrs):
-        instance, value = self.get_instance_and_id(self.model, value)
+        if value is None:
+            instance = None
+        else:
+            try:
+                instance = self.get_instance(value)
+            except ObjectDoesNotExist:
+                value = None
+                instance = None
+
         original_field_html = super().render_html(name, value, attrs)
 
         if instance is None:
