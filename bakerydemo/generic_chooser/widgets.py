@@ -19,6 +19,8 @@ class AdminChooser(WidgetWithScript, widgets.Input):
     show_edit_link = True
     classname = None  # CSS class for the top-level element
 
+    model = None
+
     # URL route name for editing an existing item - should return the URL of the item's edit view
     # when reversed with the item's quoted PK as its only argument. If no suitable URL route exists
     # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
@@ -72,7 +74,7 @@ class AdminChooser(WidgetWithScript, widgets.Input):
         else:
             try:
                 instance = self.get_instance(value)
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist if self.model is None else self.model.DoesNotExist):
                 value = None
                 instance = None
 

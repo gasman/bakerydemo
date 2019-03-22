@@ -1,4 +1,5 @@
 from django.contrib.admin.utils import quote, unquote
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -52,6 +53,8 @@ class ChosenView(View):
     # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
     edit_item_url_name = None
 
+    model = None
+
     def get_object(self, pk):
         return self.model.objects.get(pk=pk)
 
@@ -70,8 +73,8 @@ class ChosenView(View):
 
     def get(self, request, pk):
         try:
-            item = self.get_object(pk=unquote(pk))
-        except self.model.DoesNotExist:
+            item = self.get_object(unquote(pk))
+        except (ObjectDoesNotExist if self.model is None else self.model.DoesNotExist):
             raise Http404
 
         response_data = self.get_response_data(item)
