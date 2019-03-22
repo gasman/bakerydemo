@@ -1,5 +1,6 @@
-from django.contrib.admin.utils import unquote
+from django.contrib.admin.utils import quote, unquote
 from django.http import Http404
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views import View
 
@@ -45,14 +46,26 @@ class ChooseView(View):
 
 
 class ChosenView(View):
+
+    # URL route name for editing an existing item - should return the URL of the item's edit view
+    # when reversed with the item's quoted PK as its only argument. If no suitable URL route exists
+    # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
+    edit_item_url_name = None
+
     def get_object(self, pk):
         return self.model.objects.get(pk=pk)
+
+    def get_edit_item_url(self, instance):
+        if self.edit_item_url_name is None:
+            return None
+        else:
+            return reverse(self.edit_item_url_name, args=(quote(instance.pk),))
 
     def get_response_data(self, item):
         return {
             'id': str(item.pk),
             'string': str(item),
-            'edit_link': self.get_edit_url(item)
+            'edit_link': self.get_edit_item_url(item)
         }
 
     def get(self, request, pk):

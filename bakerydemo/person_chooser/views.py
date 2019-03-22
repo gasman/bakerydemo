@@ -16,5 +16,5 @@ class ChoosePersonView(ChooseView):
 class ChosenPersonView(ChosenView):
     model = People
 
-    def get_edit_url(self, item):
+    def get_edit_item_url(self, item):
         return reverse('wagtailsnippets:edit', args=('base', 'people', quote(item.pk)))
