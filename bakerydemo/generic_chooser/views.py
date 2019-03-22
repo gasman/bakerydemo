@@ -28,8 +28,15 @@ class ChooseView(View):
             self.get_context_data(), json_data={'step': 'choose'}
         )
 
+    def get_object_id(self, instance):
+        return instance.pk
+
+    def get_object_string(self, instance):
+        return str(instance)
+
     def get_chosen_url(self, instance):
-        return reverse(self.chosen_url_name, args=(quote(instance.pk),))
+        object_id = self.get_object_id(instance)
+        return reverse(self.chosen_url_name, args=(quote(object_id),))
 
     def paginate(self):
         self.paginator, self.object_list = paginate(self.request, self.object_list, per_page=self.paginate_by)
@@ -41,7 +48,7 @@ class ChooseView(View):
     def get_row_data(self, item):
         return {
             'choose_url': self.get_chosen_url(item),
-            'title': str(item),
+            'title': self.get_object_string(item),
         }
 
     def get_context_data(self):
@@ -61,7 +68,7 @@ class ChooseView(View):
 class ChosenView(View):
 
     # URL route name for editing an existing item - should return the URL of the item's edit view
-    # when reversed with the item's quoted PK as its only argument. If no suitable URL route exists
+    # when reversed with the item's quoted ID as its only argument. If no suitable URL route exists
     # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
     edit_item_url_name = None
 
@@ -70,16 +77,23 @@ class ChosenView(View):
     def get_object(self, pk):
         return self.model.objects.get(pk=pk)
 
+    def get_object_id(self, instance):
+        return instance.pk
+
     def get_edit_item_url(self, instance):
         if self.edit_item_url_name is None:
             return None
         else:
-            return reverse(self.edit_item_url_name, args=(quote(instance.pk),))
+            object_id = self.get_object_id(instance)
+            return reverse(self.edit_item_url_name, args=(quote(object_id),))
+
+    def get_object_string(self, instance):
+        return str(instance)
 
     def get_response_data(self, item):
         return {
-            'id': str(item.pk),
-            'string': str(item),
+            'id': str(self.get_object_id(item)),
+            'string': self.get_object_string(item),
             'edit_link': self.get_edit_item_url(item)
         }
 

@@ -32,12 +32,31 @@ class ChoosePageModelView(ChooseView):
     chosen_url_name = 'person_chooser:chosen_page'
 
 
+class ChoosePageAPIView(ChooseView):
+    icon = 'page'
+    page_title = _("Choose a page")
+    chosen_url_name = 'person_chooser:chosen_page'
+
+    def get_object_list(self):
+        url = 'http://localhost:8000/api/v2/pages/?format=json'
+        result = requests.get(url).json()
+        return result['items']
+
+    def get_object_id(self, item):
+        return item['id']
+
+    def get_object_string(self, item):
+        return item['title']
+
+
 class ChosenPageModelView(ChosenView):
     model = Page
     edit_item_url_name = 'wagtailadmin_pages:edit'
 
 
 class ChosenPageAPIView(ChosenView):
+    edit_item_url_name = 'wagtailadmin_pages:edit'
+
     def get_object(self, id):
         url = 'http://localhost:8000/api/v2/pages/%s/?format=json' % quote(id)
         result = requests.get(url).json()
@@ -48,12 +67,8 @@ class ChosenPageAPIView(ChosenView):
 
         return result
 
-    def get_response_data(self, item):
-        return {
-            'id': str(item['id']),
-            'string': str(item['title']),
-            'edit_link': self.get_edit_item_url(item)
-        }
+    def get_object_id(self, item):
+        return item['id']
 
-    def get_edit_item_url(self, instance):
-        return reverse('wagtailadmin_pages:edit', args=(instance['id'],))
+    def get_object_string(self, item):
+        return item['title']
