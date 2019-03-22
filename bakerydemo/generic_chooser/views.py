@@ -28,15 +28,27 @@ class ChooseView(View):
             self.get_context_data(), json_data={'step': 'choose'}
         )
 
+    def get_chosen_url(self, instance):
+        return reverse(self.chosen_url_name, args=(quote(instance.pk),))
+
     def paginate(self):
         self.paginator, self.object_list = paginate(self.request, self.object_list, per_page=self.paginate_by)
+
+    def get_rows(self):
+        for item in self.object_list:
+            yield self.get_row_data(item)
+
+    def get_row_data(self, item):
+        return {
+            'choose_url': self.get_chosen_url(item),
+            'title': str(item),
+        }
 
     def get_context_data(self):
         return {
             'icon': self.icon,
             'page_title': self.page_title,
-            'items': self.object_list,
-            'chosen_url_name': self.chosen_url_name,
+            'rows': self.get_rows(),
         }
 
     def get_template(self):
