@@ -38,7 +38,7 @@ class PageAPIChooser(AdminChooser):
     choose_modal_url_name = 'person_chooser:choose_page'
 
     def get_instance(self, id):
-        url = 'http://localhost:8000/api/v2/pages/%d/?format=json' % id
+        url = 'http://localhost:8000/api/v2/pages/%s/?format=json' % quote(id)
         result = requests.get(url).json()
 
         if 'id' not in result:
