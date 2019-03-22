@@ -15,10 +15,10 @@ from wagtail.core.fields import StreamField
 from wagtail.core.models import Page, Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
-from wagtail.snippets.edit_handlers import SnippetChooserPanel
+# from wagtail.snippets.edit_handlers import SnippetChooserPanel
 
 from bakerydemo.base.blocks import BaseStreamBlock
-from bakerydemo.person_chooser.widgets import AdminPersonChooser
+from bakerydemo.person_chooser.widgets import AdminPersonChooser, PageAPIChooser
 
 
 class BlogPeopleRelationship(Orderable, models.Model):
@@ -35,8 +35,12 @@ class BlogPeopleRelationship(Orderable, models.Model):
     people = models.ForeignKey(
         'base.People', related_name='person_blog_relationship', on_delete=models.CASCADE
     )
+    profile_page = models.ForeignKey(
+        'wagtailcore.Page', related_name='+', null=True, blank=True, on_delete=models.SET_NULL
+    )
     panels = [
-        FieldPanel('people', widget=AdminPersonChooser)
+        FieldPanel('people', widget=AdminPersonChooser),
+        FieldPanel('profile_page', widget=PageAPIChooser()),
     ]
 
 

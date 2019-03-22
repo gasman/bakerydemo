@@ -2,9 +2,10 @@ from django.contrib.admin.utils import quote
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from bakerydemo.generic_chooser.widgets import AdminChooser
+from wagtail.core.models import Page
 
 from bakerydemo.base.models import People
+from bakerydemo.generic_chooser.widgets import AdminChooser
 
 
 class AdminPersonChooser(AdminChooser):
@@ -16,3 +17,12 @@ class AdminPersonChooser(AdminChooser):
 
     def get_edit_item_url(self, item):
         return reverse('wagtailsnippets:edit', args=('base', 'people', quote(item.pk)))
+
+
+class PageAPIChooser(AdminChooser):
+    choose_one_text = _('Choose a page')
+    choose_another_text = _('Choose another page')
+    link_to_chosen_text = _('Edit this page')
+    model = Page
+    choose_modal_url_name = 'person_chooser:choose_page'
+    edit_item_url_name = 'wagtailadmin_pages:edit'
