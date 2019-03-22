@@ -60,6 +60,12 @@ class AdminChooser(WidgetWithScript, widgets.Input):
         else:
             return result
 
+    def get_title(self, instance):
+        if instance is None:
+            return ''
+        else:
+            return str(instance)
+
     def render_html(self, name, value, attrs):
         if value is None:
             instance = None
@@ -83,6 +89,7 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             'attrs': attrs,
             'value': value,
             'item': instance,
+            'title': self.get_title(instance),
             'edit_item_url': edit_item_url,
             'choose_modal_url': self.get_choose_modal_url(),
         })
