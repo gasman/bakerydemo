@@ -1,4 +1,5 @@
 from django.contrib.admin.utils import quote
+from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -38,7 +39,13 @@ class PageAPIChooser(AdminChooser):
 
     def get_instance(self, id):
         url = 'http://localhost:8000/api/v2/pages/%d/?format=json' % id
-        return requests.get(url).json()
+        result = requests.get(url).json()
+
+        if 'id' not in result:
+            # assume this is a 'not found' report
+            raise ObjectDoesNotExist(result['message'])
+
+        return result
 
     def get_title(self, instance):
         if instance is None:
