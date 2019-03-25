@@ -4,36 +4,69 @@ from django.contrib.admin.utils import quote, unquote
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.http import Http404
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views import View
 
+from wagtail.admin.forms.search import SearchForm
 from wagtail.admin.modal_workflow import render_modal_workflow
+from wagtail.search.backends import get_search_backend
 from wagtail.search.index import class_is_indexed
 
 
 class ChooseView(View):
     icon = 'snippet'
     page_title = _("Choose")
+    search_placeholder = _("Search")
     template = 'generic_chooser/choose.html'
+    results_template = 'generic_chooser/_results.html'
     paginate_by = None
     is_searchable = False
 
+    # URL route name for this chooser view - should return the URL of the chooser view when
+    # reversed with no arguments. If no suitable URL route exists, subclasses can override
+    # get_choose_modal_url instead.
+    # This will be used as the action URL of the search form.
+    choose_url_name = None
+
     def get(self, request):
+
+        self.is_searching = False
+        self.search_query = None
+
+        if self.is_searchable:
+            if 'q' in request.GET:
+                self.search_form = SearchForm(request.GET, placeholder=self.search_placeholder)
+
+                if self.search_form.is_valid():
+                    self.search_query = self.search_form.cleaned_data['q']
+                    self.is_searching = True
+            else:
+                self.search_form = SearchForm(placeholder=self.search_placeholder)
+
         self.object_list = self.get_object_list()
 
         # Pagination
         if self.paginate_by:
             self.paginate()
 
-        return render_modal_workflow(
-            request,
-            self.get_template(), None,
-            self.get_context_data(), json_data={'step': 'choose'}
-        )
+        # 'results=true' URL param indicates we should only render the results partial
+        # rather than serving a full ModalWorkflow response
+        if request.GET.get('results') == 'true':
+            return render(request, self.get_results_template(), self.get_context_data())
+        else:
+            return render_modal_workflow(
+                request,
+                self.get_template(), None,
+                self.get_context_data(), json_data={'step': 'choose'}
+            )
 
     def get_object_string(self, instance):
         return str(instance)
+
+    def get_choose_url(self):
+        return reverse(self.choose_url_name)
 
     def get_chosen_url(self, instance):
         object_id = self.get_object_id(instance)
@@ -54,11 +87,24 @@ class ChooseView(View):
         }
 
     def get_context_data(self):
-        return {
+        context = {
             'icon': self.icon,
             'page_title': self.page_title,
             'rows': self.get_rows(),
+            'results_template': self.get_results_template(),
+            'is_searchable': self.is_searchable,
+            'choose_url': self.get_choose_url(),
         }
+
+        if self.is_searchable:
+            context.update({
+                'search_form': self.search_form,
+            })
+
+        return context
+
+    def get_results_template(self):
+        return self.results_template
 
     def get_template(self):
         return self.template
@@ -75,8 +121,17 @@ class ModelChooseView(ChooseView):
     def is_searchable(self):
         return class_is_indexed(self.model)
 
-    def get_object_list(self):
+    def get_unfiltered_object_list(self):
         return self.model.objects.all()
+
+    def get_object_list(self):
+        object_list = self.get_unfiltered_object_list()
+
+        if self.is_searching:
+            search_backend = get_search_backend()
+            object_list = search_backend.search(self.search_query, object_list)
+
+        return object_list
 
     def get_object_id(self, instance):
         return instance.pk

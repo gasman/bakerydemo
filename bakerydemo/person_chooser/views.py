@@ -12,6 +12,7 @@ class ChoosePersonView(ModelChooseView):
     icon = 'user'
     model = People
     page_title = _("Choose a person")
+    choose_url_name = 'person_chooser:choose_person'
     chosen_url_name = 'person_chooser:chosen_person'
 
 
@@ -26,12 +27,14 @@ class ChoosePageModelView(ModelChooseView):
     icon = 'page'
     model = Page
     page_title = _("Choose a page")
+    choose_url_name = 'person_chooser:choose_page'
     chosen_url_name = 'person_chooser:chosen_page'
 
 
 class ChoosePageAPIView(DRFChooseView):
     icon = 'page'
     page_title = _("Choose a page")
+    choose_url_name = 'person_chooser:choose_page'
     chosen_url_name = 'person_chooser:chosen_page'
     api_base_url = 'http://localhost:8000/api/v2/pages/'
 
