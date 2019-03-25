@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views import View
 
 from wagtail.admin.modal_workflow import render_modal_workflow
+from wagtail.search.index import class_is_indexed
 
 
 class ChooseView(View):
@@ -16,6 +17,7 @@ class ChooseView(View):
     page_title = _("Choose")
     template = 'generic_chooser/choose.html'
     paginate_by = None
+    is_searchable = False
 
     def get(self, request):
         self.object_list = self.get_object_list()
@@ -69,6 +71,10 @@ class ChooseView(View):
 
 
 class ModelChooseView(ChooseView):
+    @property
+    def is_searchable(self):
+        return class_is_indexed(self.model)
+
     def get_object_list(self):
         return self.model.objects.all()
 
