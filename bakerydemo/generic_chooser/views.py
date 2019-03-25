@@ -139,8 +139,12 @@ class ModelChooseView(ChooseView):
 
 class DRFChooseView(ChooseView):
     def get_object_list(self):
-        url = self.api_base_url + '?format=json'
-        result = requests.get(url).json()
+        params = {'format': 'json'}
+
+        if self.is_searching:
+            params['search'] = self.search_query
+
+        result = requests.get(self.api_base_url, params=params).json()
         return result['items']
 
     def get_object_id(self, item):
