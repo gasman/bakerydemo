@@ -1,12 +1,12 @@
 from django.contrib.admin.utils import quote, unquote
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
 from django.http import Http404
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views import View
 
 from wagtail.admin.modal_workflow import render_modal_workflow
-from wagtail.utils.pagination import paginate
 
 
 class ChooseView(View):
@@ -39,7 +39,8 @@ class ChooseView(View):
         return reverse(self.chosen_url_name, args=(quote(object_id),))
 
     def paginate(self):
-        self.paginator, self.object_list = paginate(self.request, self.object_list, per_page=self.paginate_by)
+        self.paginator = Paginator(self.object_list, per_page=self.paginate_by)
+        self.object_list = self.paginator.get_page(self.request.GET.get('p'))
 
     def get_rows(self):
         for item in self.object_list:
