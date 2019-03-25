@@ -2,7 +2,7 @@ import requests
 
 from django.contrib.admin.utils import quote, unquote
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.paginator import Paginator
+from django.core.paginator import Page, Paginator
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse
@@ -154,15 +154,49 @@ class ModelChooseView(ChooseView):
         return instance.pk
 
 
+class APIPaginator(Paginator):
+    """
+    Customisation of Django's Paginator to give us access to the page_range / num_pages
+    functionality needed by pagination UI, without having to use Paginator's
+    list-slicing logic - which isn't a good fit for API use, as it relies on knowing
+    the total count of results before deciding which slice to request.
+
+    Rather than instantiating it with a list/queryset and page number, we pass it the
+    full item count, which is sufficient for page_range / num_pages to work.
+    """
+    def __init__(self, count, per_page, **kwargs):
+        self._count = int(count)
+        super().__init__([], per_page, **kwargs)
+
+    @property
+    def count(self):
+        return self._count
+
+
 class DRFChooseView(ChooseView):
-    def get_object_list(self):
+    def get_api_parameters(self):
         params = {'format': 'json'}
 
         if self.is_searching:
             params['search'] = self.search_query
 
+        return params
+
+    def get_object_list(self):
+        params = self.get_api_parameters()
+
         result = requests.get(self.api_base_url, params=params).json()
         return result['items']
+
+    def get_paginated_object_list(self):
+        params = self.get_api_parameters()
+        params['limit'] = self.per_page
+        params['offset'] = (self.page_number - 1) * self.per_page
+
+        result = requests.get(self.api_base_url, params=params).json()
+        paginator = APIPaginator(result['meta']['total_count'], self.per_page)
+        page = Page(result['items'], self.page_number, paginator)
+        return (page, paginator)
 
     def get_object_id(self, item):
         return item['id']

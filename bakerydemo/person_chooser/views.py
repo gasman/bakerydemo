@@ -39,6 +39,7 @@ class ChoosePageAPIView(DRFChooseView):
     chosen_url_name = 'person_chooser:chosen_page'
     api_base_url = 'http://localhost:8000/api/v2/pages/'
     is_searchable = True
+    per_page = 5
 
     def get_object_string(self, item):
         return item['title']
