@@ -1,8 +1,16 @@
 GENERIC_CHOOSER_MODAL_ONLOAD_HANDLERS = {
     'choose': function(modal, jsonData) {
+        var paginationUrl = $('.pagination', modal.body).data('action-url');
+
         function ajaxifyLinks(context) {
             $('a.item-choice', context).on('click', function() {
                 modal.loadUrl(this.href);
+                return false;
+            });
+
+            $('.pagination a', context).on('click', function() {
+                var page = this.getAttribute('data-page');
+                setPage(page);
                 return false;
             });
         }
@@ -37,6 +45,24 @@ GENERIC_CHOOSER_MODAL_ONLOAD_HANDLERS = {
             var wait = setTimeout(search, 50);
             $(this).data('timer', wait);
         });
+
+        function setPage(page) {
+            var dataObj = {p: page, results: 'true'};
+
+            if ($('#id_q').length && $('#id_q').val().length) {
+                dataObj.q = $('#id_q').val();
+            }
+
+            $.ajax({
+                url: paginationUrl,
+                data: dataObj,
+                success: function(data, status) {
+                    $('#search-results').html(data);
+                    ajaxifyLinks($('#search-results'));
+                }
+            });
+            return false;
+        }
 
     },
     'chosen': function(modal, jsonData) {

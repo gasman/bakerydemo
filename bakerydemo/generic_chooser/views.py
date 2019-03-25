@@ -21,7 +21,7 @@ class ChooseView(View):
     search_placeholder = _("Search")
     template = 'generic_chooser/choose.html'
     results_template = 'generic_chooser/_results.html'
-    paginate_by = None
+    per_page = None
     is_searchable = False
 
     # URL route name for this chooser view - should return the URL of the chooser view when
@@ -45,11 +45,20 @@ class ChooseView(View):
             else:
                 self.search_form = SearchForm(placeholder=self.search_placeholder)
 
-        self.object_list = self.get_object_list()
+        self.is_paginated = self.per_page is not None
+        if self.is_paginated:
+            try:
+                self.page_number = int(request.GET.get('p', 1))
+            except ValueError:
+                self.page_number = 1
 
-        # Pagination
-        if self.paginate_by:
-            self.paginate()
+            if self.page_number < 1:
+                self.page_number = 1
+
+        if self.is_paginated:
+            self.object_list, self.paginator = self.get_paginated_object_list()
+        else:
+            self.object_list = self.get_object_list()
 
         # 'results=true' URL param indicates we should only render the results partial
         # rather than serving a full ModalWorkflow response
@@ -72,10 +81,6 @@ class ChooseView(View):
         object_id = self.get_object_id(instance)
         return reverse(self.chosen_url_name, args=(quote(object_id),))
 
-    def paginate(self):
-        self.paginator = Paginator(self.object_list, per_page=self.paginate_by)
-        self.object_list = self.paginator.get_page(self.request.GET.get('p'))
-
     def get_rows(self):
         for item in self.object_list:
             yield self.get_row_data(item)
@@ -94,11 +99,18 @@ class ChooseView(View):
             'results_template': self.get_results_template(),
             'is_searchable': self.is_searchable,
             'choose_url': self.get_choose_url(),
+            'is_paginated': self.is_paginated,
         }
 
         if self.is_searchable:
             context.update({
                 'search_form': self.search_form,
+            })
+
+        if self.is_paginated:
+            context.update({
+                'page': self.object_list,
+                'paginator': self.paginator,
             })
 
         return context
@@ -111,6 +123,11 @@ class ChooseView(View):
 
     def get_object_list(self):
         raise NotImplementedError
+
+    def get_paginated_object_list(self):
+        paginator = Paginator(self.get_object_list(), per_page=self.per_page)
+        object_list = paginator.get_page(self.page_number)
+        return (object_list, paginator)
 
     def get_object_id(self, instance):
         raise NotImplementedError

@@ -19,3 +19,7 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% if is_paginated %}
+    {% include "generic_chooser/_ajax_pagination_nav.html" with items=page %}
+{% endif %}

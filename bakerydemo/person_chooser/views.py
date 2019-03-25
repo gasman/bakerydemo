@@ -14,6 +14,7 @@ class ChoosePersonView(ModelChooseView):
     page_title = _("Choose a person")
     choose_url_name = 'person_chooser:choose_person'
     chosen_url_name = 'person_chooser:chosen_person'
+    per_page = 2
 
 
 class ChosenPersonView(ModelChosenView):
