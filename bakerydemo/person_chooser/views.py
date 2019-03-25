@@ -1,74 +1,52 @@
 from django.contrib.admin.utils import quote
-from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-
-import requests
 
 from wagtail.core.models import Page
 
 from bakerydemo.base.models import People
-from bakerydemo.generic_chooser.views import ChooseView, ChosenView
+from bakerydemo.generic_chooser.views import DRFChooseView, ModelChooseView, DRFChosenView, ModelChosenView
 
 
-class ChoosePersonView(ChooseView):
+class ChoosePersonView(ModelChooseView):
     icon = 'user'
     model = People
     page_title = _("Choose a person")
     chosen_url_name = 'person_chooser:chosen_person'
 
 
-class ChosenPersonView(ChosenView):
+class ChosenPersonView(ModelChosenView):
     model = People
 
     def get_edit_item_url(self, item):
         return reverse('wagtailsnippets:edit', args=('base', 'people', quote(item.pk)))
 
 
-class ChoosePageModelView(ChooseView):
+class ChoosePageModelView(ModelChooseView):
     icon = 'page'
     model = Page
     page_title = _("Choose a page")
     chosen_url_name = 'person_chooser:chosen_page'
 
 
-class ChoosePageAPIView(ChooseView):
+class ChoosePageAPIView(DRFChooseView):
     icon = 'page'
     page_title = _("Choose a page")
     chosen_url_name = 'person_chooser:chosen_page'
-
-    def get_object_list(self):
-        url = 'http://localhost:8000/api/v2/pages/?format=json'
-        result = requests.get(url).json()
-        return result['items']
-
-    def get_object_id(self, item):
-        return item['id']
+    api_base_url = 'http://localhost:8000/api/v2/pages/'
 
     def get_object_string(self, item):
         return item['title']
 
 
-class ChosenPageModelView(ChosenView):
+class ChosenPageModelView(ModelChosenView):
     model = Page
     edit_item_url_name = 'wagtailadmin_pages:edit'
 
 
-class ChosenPageAPIView(ChosenView):
+class ChosenPageAPIView(DRFChosenView):
     edit_item_url_name = 'wagtailadmin_pages:edit'
-
-    def get_object(self, id):
-        url = 'http://localhost:8000/api/v2/pages/%s/?format=json' % quote(id)
-        result = requests.get(url).json()
-
-        if 'id' not in result:
-            # assume this is a 'not found' report
-            raise ObjectDoesNotExist(result['message'])
-
-        return result
-
-    def get_object_id(self, item):
-        return item['id']
+    api_base_url = 'http://localhost:8000/api/v2/pages/'
 
     def get_object_string(self, item):
         return item['title']

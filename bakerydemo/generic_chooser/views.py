@@ -1,3 +1,5 @@
+import requests
+
 from django.contrib.admin.utils import quote, unquote
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
@@ -27,9 +29,6 @@ class ChooseView(View):
             self.get_template(), None,
             self.get_context_data(), json_data={'step': 'choose'}
         )
-
-    def get_object_id(self, instance):
-        return instance.pk
 
     def get_object_string(self, instance):
         return str(instance)
@@ -63,7 +62,28 @@ class ChooseView(View):
         return self.template
 
     def get_object_list(self):
+        raise NotImplementedError
+
+    def get_object_id(self, instance):
+        raise NotImplementedError
+
+
+class ModelChooseView(ChooseView):
+    def get_object_list(self):
         return self.model.objects.all()
+
+    def get_object_id(self, instance):
+        return instance.pk
+
+
+class DRFChooseView(ChooseView):
+    def get_object_list(self):
+        url = self.api_base_url + '?format=json'
+        result = requests.get(url).json()
+        return result['items']
+
+    def get_object_id(self, item):
+        return item['id']
 
 
 class ChosenView(View):
@@ -73,13 +93,11 @@ class ChosenView(View):
     # (e.g. it requires additional arguments), subclasses can override get_edit_item_url instead.
     edit_item_url_name = None
 
-    model = None
-
     def get_object(self, pk):
-        return self.model.objects.get(pk=pk)
+        raise NotImplementedError
 
     def get_object_id(self, instance):
-        return instance.pk
+        raise NotImplementedError
 
     def get_edit_item_url(self, instance):
         if self.edit_item_url_name is None:
@@ -101,7 +119,7 @@ class ChosenView(View):
     def get(self, request, pk):
         try:
             item = self.get_object(unquote(pk))
-        except (ObjectDoesNotExist if self.model is None else self.model.DoesNotExist):
+        except ObjectDoesNotExist:
             raise Http404
 
         response_data = self.get_response_data(item)
@@ -111,3 +129,26 @@ class ChosenView(View):
             None, None,
             None, json_data={'step': 'chosen', 'result': response_data}
         )
+
+
+class ModelChosenView(ChosenView):
+    def get_object(self, pk):
+        return self.model.objects.get(pk=pk)
+
+    def get_object_id(self, instance):
+        return instance.pk
+
+
+class DRFChosenView(ChosenView):
+    def get_object(self, id):
+        url = '%s%s/?format=json' % (self.api_base_url, quote(id))
+        result = requests.get(url).json()
+
+        if 'id' not in result:
+            # assume this is a 'not found' report
+            raise ObjectDoesNotExist(result['message'])
+
+        return result
+
+    def get_object_id(self, item):
+        return item['id']
