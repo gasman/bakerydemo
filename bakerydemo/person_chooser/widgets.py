@@ -1,14 +1,11 @@
 from django.contrib.admin.utils import quote
-from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-
-import requests
 
 from wagtail.core.models import Page
 
 from bakerydemo.base.models import People
-from bakerydemo.generic_chooser.widgets import AdminChooser
+from bakerydemo.generic_chooser.widgets import AdminChooser, DRFChooser
 
 
 class AdminPersonChooser(AdminChooser):
@@ -31,27 +28,13 @@ class PageModelChooser(AdminChooser):
     edit_item_url_name = 'wagtailadmin_pages:edit'
 
 
-class PageAPIChooser(AdminChooser):
+class PageAPIChooser(DRFChooser):
     choose_one_text = _('Choose a page')
     choose_another_text = _('Choose another page')
     link_to_chosen_text = _('Edit this page')
     choose_modal_url_name = 'person_chooser:choose_page'
-
-    def get_instance(self, id):
-        url = 'http://localhost:8000/api/v2/pages/%s/?format=json' % quote(id)
-        result = requests.get(url).json()
-
-        if 'id' not in result:
-            # assume this is a 'not found' report
-            raise ObjectDoesNotExist(result['message'])
-
-        return result
+    edit_item_url_name = 'wagtailadmin_pages:edit'
+    api_base_url = 'http://localhost:8000/api/v2/pages/'
 
     def get_title(self, instance):
-        if instance is None:
-            return ''
-        else:
-            return instance['title']
-
-    def get_edit_item_url(self, instance):
-        return reverse('wagtailadmin_pages:edit', args=(instance['id'],))
+        return instance['title']

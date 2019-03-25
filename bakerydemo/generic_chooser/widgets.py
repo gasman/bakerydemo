@@ -7,6 +7,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+import requests
+
 from wagtail.utils.widgets import WidgetWithScript
 
 
@@ -63,10 +65,7 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             return result
 
     def get_title(self, instance):
-        if instance is None:
-            return ''
-        else:
-            return str(instance)
+        return str(instance)
 
     def render_html(self, name, value, attrs):
         if value is None:
@@ -91,7 +90,7 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             'attrs': attrs,
             'value': value,
             'item': instance,
-            'title': self.get_title(instance),
+            'title': '' if instance is None else self.get_title(instance),
             'edit_item_url': edit_item_url,
             'choose_modal_url': self.get_choose_modal_url(),
         })
@@ -118,3 +117,22 @@ class AdminChooser(WidgetWithScript, widgets.Input):
             'generic_chooser/js/chooser-modal.js',
             'generic_chooser/js/chooser-widget.js',
         ]
+
+
+class DRFChooser(AdminChooser):
+    """A chooser widget associated with a Django REST Framework API endpoint"""
+    def get_instance(self, id):
+        url = '%s%s/?format=json' % (self.api_base_url, quote(id))
+        result = requests.get(url).json()
+
+        if 'id' not in result:
+            # assume this is a 'not found' report
+            raise ObjectDoesNotExist(result['message'])
+
+        return result
+
+    def get_edit_item_url(self, instance):
+        if self.edit_item_url_name is None:
+            return None
+        else:
+            return reverse(self.edit_item_url_name, args=(instance['id'],))
