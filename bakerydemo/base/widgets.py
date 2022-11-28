@@ -15,4 +15,4 @@ class PersonChooser(AdminChooser):
     choose_modal_url_name = 'person_chooser:choose'
 
     def get_edit_item_url(self, item):
-        return reverse('wagtailsnippets_base_person:edit', args=(quote(item.pk), ))
+        return reverse('wagtailsnippets:edit', args=('base', 'person', quote(item.pk)))
