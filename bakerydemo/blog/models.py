@@ -13,6 +13,7 @@ from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from bakerydemo.base.blocks import BaseStreamBlock
+from bakerydemo.base.widgets import PersonChooser
 
 
 class BlogPersonRelationship(Orderable, models.Model):
@@ -30,7 +31,7 @@ class BlogPersonRelationship(Orderable, models.Model):
     person = models.ForeignKey(
         "base.Person", related_name="person_blog_relationship", on_delete=models.CASCADE
     )
-    panels = [FieldPanel("person")]
+    panels = [FieldPanel("person", widget=PersonChooser)]
 
 
 class BlogPageTag(TaggedItemBase):
