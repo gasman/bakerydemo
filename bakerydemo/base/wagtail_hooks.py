@@ -3,8 +3,10 @@ from wagtail.contrib.modeladmin.options import (
     ModelAdminGroup,
     modeladmin_register,
 )
+from wagtail.core import hooks
 
 from bakerydemo.base.models import FooterText, Person
+from bakerydemo.base.views import PersonChooserViewSet
 from bakerydemo.breads.models import BreadIngredient, BreadType, Country
 
 """
@@ -74,11 +76,6 @@ class BakeryModelAdminGroup(ModelAdminGroup):
 # you only need to register the ModelAdminGroup class with Wagtail:
 modeladmin_register(BreadModelAdminGroup)
 modeladmin_register(BakeryModelAdminGroup)
-
-
-from wagtail.core import hooks
-
-from bakerydemo.base.views import PersonChooserViewSet
 
 
 @hooks.register("register_admin_viewset")
