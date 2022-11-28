@@ -1,9 +1,9 @@
+from wagtail import hooks
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin,
     ModelAdminGroup,
     modeladmin_register,
 )
-from wagtail import hooks
 
 from bakerydemo.base.models import FooterText, Person
 from bakerydemo.base.views import PersonChooserViewSet
