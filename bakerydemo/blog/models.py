@@ -14,7 +14,7 @@ from wagtail.search import index
 
 from bakerydemo.base.blocks import BaseStreamBlock
 from bakerydemo.base.models import Person
-from bakerydemo.base.widgets import PersonChooser
+from bakerydemo.base.widgets import PersonChooser  # , JobSpecificPersonChooser
 
 
 class BlogPersonRelationship(Orderable, models.Model):
@@ -33,6 +33,9 @@ class BlogPersonRelationship(Orderable, models.Model):
         "base.Person", related_name="person_blog_relationship", on_delete=models.CASCADE
     )
     panels = [FieldPanel("person", widget=PersonChooser)]
+    # panels = [FieldPanel("person", widget=JobSpecificPersonChooser(
+    #     linked_fields={'job_title': {'selector': '#id_title'}}
+    # ))]
 
 
 class BlogPageTag(TaggedItemBase):
