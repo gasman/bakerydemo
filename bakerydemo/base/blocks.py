@@ -1,6 +1,8 @@
+from django.utils.functional import cached_property
 from wagtail.blocks import (
     CharBlock,
     ChoiceBlock,
+    ChooserBlock,
     RichTextBlock,
     StreamBlock,
     StructBlock,
@@ -60,6 +62,44 @@ class BlockQuote(StructBlock):
         template = "blocks/blockquote.html"
 
 
+class PersonChooserBlock(ChooserBlock):
+    @cached_property
+    def target_model(self):
+        from .models import Person
+
+        return Person
+
+    @cached_property
+    def widget(self):
+        from .widgets import PersonChooser
+
+        return PersonChooser()
+
+    def get_form_state(self, value):
+        return self.widget.get_value_data(value)
+
+
+class PersonWithJobChooserBlock(ChooserBlock):
+    # chooser is filtered to people with the job title set in the page's title.
+    # Stupid, but it's the easiest way to test this...
+    @cached_property
+    def target_model(self):
+        from .models import Person
+
+        return Person
+
+    @cached_property
+    def widget(self):
+        from .widgets import JobSpecificPersonChooser
+
+        return JobSpecificPersonChooser(
+            linked_fields={"job_title": {"selector": "#id_title"}}
+        )
+
+    def get_form_state(self, value):
+        return self.widget.get_value_data(value)
+
+
 # StreamBlocks
 class BaseStreamBlock(StreamBlock):
     """
@@ -77,3 +117,5 @@ class BaseStreamBlock(StreamBlock):
         icon="fa-s15",
         template="blocks/embed_block.html",
     )
+    person_chooser = PersonChooserBlock()
+    person_with_job = PersonWithJobChooserBlock()
