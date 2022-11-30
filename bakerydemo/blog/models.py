@@ -14,6 +14,7 @@ from wagtail.search import index
 
 from bakerydemo.base.blocks import BaseStreamBlock
 from bakerydemo.base.models import Person
+from bakerydemo.base.panels import MultipleChooserPanel
 from bakerydemo.base.widgets import PersonChooser  # , JobSpecificPersonChooser
 
 
@@ -81,8 +82,10 @@ class BlogPage(Page):
         FieldPanel("image"),
         FieldPanel("body"),
         FieldPanel("date_published"),
-        InlinePanel(
-            "blog_person_relationship", label="Author(s)", panels=None, min_num=1
+        MultipleChooserPanel(
+            "blog_person_relationship",
+            chooser_field_name="person",
+            label="Author(s)", panels=None, min_num=1
         ),
         FieldPanel("tags"),
     ]
