@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import Tag, TaggedItemBase
-from wagtail.admin.panels import FieldPanel, InlinePanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultipleChooserPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.fields import StreamField
 from wagtail.models import Orderable, Page
@@ -77,12 +77,13 @@ class BlogPage(Page):
         FieldPanel("image"),
         FieldPanel("body"),
         FieldPanel("date_published"),
-        InlinePanel(
+        MultipleChooserPanel(
             "blog_person_relationship",
             heading="Authors",
             label="Author",
             panels=None,
             min_num=1,
+            chooser_field_name="person",
         ),
         FieldPanel("tags"),
     ]
