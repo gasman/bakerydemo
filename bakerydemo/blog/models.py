@@ -47,14 +47,6 @@ class BlogPageTag(TaggedItemBase):
 
 
 class BlogGalleryItem(Orderable, models.Model):
-    """
-    This defines the relationship between the `Person` within the `base`
-    app and the BlogPage below. This allows people to be added to a BlogPage.
-
-    We have created a two way relationship between BlogPage and Person using
-    the ParentalKey and ForeignKey
-    """
-
     page = ParentalKey(
         "BlogPage", related_name="blog_gallery_item", on_delete=models.CASCADE
     )
@@ -62,6 +54,17 @@ class BlogGalleryItem(Orderable, models.Model):
         "wagtailimages.Image", related_name="+", on_delete=models.CASCADE
     )
     panels = [FieldPanel("image")]
+
+
+class BlogDocument(Orderable, models.Model):
+    page = ParentalKey(
+        "BlogPage", related_name="blog_document", on_delete=models.CASCADE
+    )
+    document = models.ForeignKey(
+        "wagtaildocs.Document", related_name="+", on_delete=models.CASCADE
+    )
+    panels = [FieldPanel("document")]
+
 
 
 class BlogPage(Page):
@@ -107,6 +110,12 @@ class BlogPage(Page):
             heading="Gallery",
             label="Gallery image",
             chooser_field_name="image",
+        ),
+        MultipleChooserPanel(
+            "blog_document",
+            heading="Documents",
+            label="Document",
+            chooser_field_name="document",
         ),
         FieldPanel("tags"),
     ]
