@@ -5,7 +5,6 @@ from wagtail.blocks import (
     StreamBlock,
     StructBlock,
     TextBlock,
-    PageChooserBlock,
 )
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
@@ -78,4 +77,3 @@ class BaseStreamBlock(StreamBlock):
         icon="media",
         template="blocks/embed_block.html",
     )
-    page_chooser = PageChooserBlock()

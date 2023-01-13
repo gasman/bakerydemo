@@ -46,6 +46,24 @@ class BlogPageTag(TaggedItemBase):
     )
 
 
+class BlogGalleryItem(Orderable, models.Model):
+    """
+    This defines the relationship between the `Person` within the `base`
+    app and the BlogPage below. This allows people to be added to a BlogPage.
+
+    We have created a two way relationship between BlogPage and Person using
+    the ParentalKey and ForeignKey
+    """
+
+    page = ParentalKey(
+        "BlogPage", related_name="blog_gallery_item", on_delete=models.CASCADE
+    )
+    image = models.ForeignKey(
+        "wagtailimages.Image", related_name="+", on_delete=models.CASCADE
+    )
+    panels = [FieldPanel("image")]
+
+
 class BlogPage(Page):
     """
     A Blog Page
@@ -81,9 +99,14 @@ class BlogPage(Page):
             "blog_person_relationship",
             heading="Authors",
             label="Author",
-            panels=None,
             min_num=1,
             chooser_field_name="person",
+        ),
+        MultipleChooserPanel(
+            "blog_gallery_item",
+            heading="Gallery",
+            label="Gallery image",
+            chooser_field_name="image",
         ),
         FieldPanel("tags"),
     ]
