@@ -66,6 +66,15 @@ class BlogDocument(Orderable, models.Model):
     panels = [FieldPanel("document")]
 
 
+class BlogRelatedPage(Orderable, models.Model):
+    page = ParentalKey(
+        "BlogPage", related_name="blog_related_page", on_delete=models.CASCADE
+    )
+    related_page = models.ForeignKey(
+        "BlogPage", related_name="+", on_delete=models.CASCADE
+    )
+    panels = [FieldPanel("related_page")]
+
 
 class BlogPage(Page):
     """
@@ -116,6 +125,12 @@ class BlogPage(Page):
             heading="Documents",
             label="Document",
             chooser_field_name="document",
+        ),
+        MultipleChooserPanel(
+            "blog_related_page",
+            heading="Related pages",
+            label="Related pages",
+            chooser_field_name="related_page",
         ),
         FieldPanel("tags"),
     ]
