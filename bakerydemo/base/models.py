@@ -88,6 +88,7 @@ class Person(
         index.SearchField("first_name"),
         index.SearchField("last_name"),
         index.FilterField("job_title"),
+        index.FilterField("last_name"),
         index.AutocompleteField("first_name"),
         index.AutocompleteField("last_name"),
     ]
