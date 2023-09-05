@@ -6,13 +6,14 @@ from django.shortcuts import redirect, render
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import Tag, TaggedItemBase
-from wagtail.admin.panels import FieldPanel, MultipleChooserPanel
+from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.fields import StreamField
 from wagtail.models import Orderable, Page
 from wagtail.search import index
 
 from bakerydemo.base.blocks import BaseStreamBlock
+from bakerydemo.base.views import PersonChooserWidget
 
 
 class BlogPersonRelationship(Orderable, models.Model):
@@ -30,7 +31,11 @@ class BlogPersonRelationship(Orderable, models.Model):
     person = models.ForeignKey(
         "base.Person", related_name="person_blog_relationship", on_delete=models.CASCADE
     )
-    panels = [FieldPanel("person")]
+    panels = [FieldPanel("person", widget=PersonChooserWidget(
+        linked_fields={
+            "first_name": "#id_title",
+        }
+    ))]
 
 
 class BlogPageTag(TaggedItemBase):
@@ -76,9 +81,8 @@ class BlogPage(Page):
         FieldPanel("image"),
         FieldPanel("body"),
         FieldPanel("date_published"),
-        MultipleChooserPanel(
+        InlinePanel(
             "blog_person_relationship",
-            chooser_field_name="person",
             heading="Authors",
             label="Author",
             panels=None,
