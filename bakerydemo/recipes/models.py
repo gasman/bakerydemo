@@ -42,6 +42,15 @@ class RecipePage(Page):
     Recipe pages are more complex than blog pages, demonstrating more advanced StreamField patterns.
     """
 
+    version = models.CharField(
+        max_length=255,
+        choices=[
+            ("heavy", "Heavy"),
+            ("light", "Light"),
+        ],
+        default="light",
+    )
+
     date_published = models.DateField("Date article published", blank=True, null=True)
     subtitle = models.CharField(blank=True, max_length=255)
     introduction = models.TextField(blank=True, max_length=500)
@@ -73,6 +82,7 @@ class RecipePage(Page):
     )
 
     content_panels = Page.content_panels + [
+        FieldPanel("version"),
         FieldPanel("date_published"),
         # Using `title` to make a field larger.
         FieldPanel("subtitle", classname="title"),
