@@ -110,12 +110,8 @@ class BreadPage(Page):
     body = StreamField(
         BaseStreamBlock(), verbose_name="Page body", blank=True, use_json_field=True
     )
-    origin = models.ForeignKey(
-        Country,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
+    regions = ParentalManyToManyField("Region", blank=True)
+    countries_of_origin = ParentalManyToManyField("Country", blank=True)
 
     # We include related_name='+' to avoid name collisions on relationships.
     # e.g. there are two FooPage models in two different apps,
@@ -135,7 +131,8 @@ class BreadPage(Page):
         FieldPanel("introduction"),
         FieldPanel("image"),
         FieldPanel("body"),
-        FieldPanel("origin"),
+        FieldPanel("regions", widget=forms.CheckboxSelectMultiple),
+        FieldPanel("countries_of_origin", widget=forms.CheckboxSelectMultiple),
         FieldPanel("bread_type"),
         MultiFieldPanel(
             [
