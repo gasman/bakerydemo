@@ -2,6 +2,7 @@ from django import forms
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
 from modelcluster.fields import ParentalManyToManyField
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.fields import StreamField
 from wagtail.models import DraftStateMixin, Page, RevisionMixin
@@ -93,10 +94,53 @@ class BreadType(RevisionMixin, models.Model):
         verbose_name_plural = "Bread types"
 
 
+class ModelChoiceIteratorWithRegion(forms.models.ModelChoiceIterator):
+    def choice(self, obj):
+        """
+        Customise choice list to return region ID as a third element
+        """
+        value, label = super().choice(obj)
+        return (value, label, obj.region_id)
+
+
+class ModelMultipleChoiceFieldWithRegion(forms.ModelMultipleChoiceField):
+    iterator = ModelChoiceIteratorWithRegion
+
+
+class CheckboxSelectMultipleWithRegion(forms.CheckboxSelectMultiple):
+    def optgroups(self, name, value, attrs=None):
+        options = []
+        for index, (option_value, option_label, option_region_id) in enumerate(self.choices):
+            selected = str(option_value) in value
+            options.append(
+                self.create_option(
+                    name, option_value, option_label, selected, index, subindex=None, attrs=attrs, region_id=option_region_id
+                )
+            )
+        return [(None, options, None)]
+
+    def get_context(self, name, value, attrs):
+        ctx = super().get_context(name, value, attrs)
+        return ctx
+
+    def create_option(self, *args, region_id=None, **kwargs):
+        val = super().create_option(*args, **kwargs)
+        val["attrs"]["data-region"] = region_id
+        return val
+
+
+class BreadPageForm(WagtailAdminPageForm):
+    countries_of_origin = ModelMultipleChoiceFieldWithRegion(
+        queryset=Country.objects.all(),
+        widget=CheckboxSelectMultipleWithRegion(attrs={"class": "w-field--checkbox_select_multiple"}),
+    )
+
+
 class BreadPage(Page):
     """
     Detail view for a specific bread
     """
+    base_form_class = BreadPageForm
 
     introduction = models.TextField(help_text="Text to describe the page", blank=True)
     image = models.ForeignKey(
@@ -132,7 +176,7 @@ class BreadPage(Page):
         FieldPanel("image"),
         FieldPanel("body"),
         FieldPanel("regions", widget=forms.CheckboxSelectMultiple),
-        FieldPanel("countries_of_origin", widget=forms.CheckboxSelectMultiple),
+        FieldPanel("countries_of_origin"),
         FieldPanel("bread_type"),
         MultiFieldPanel(
             [
