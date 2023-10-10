@@ -10,6 +10,16 @@ from wagtail.search import index
 from bakerydemo.base.blocks import BaseStreamBlock
 
 
+class Region(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Regions"
+
+
 class Country(models.Model):
     """
     A Django model to store set of countries of origin.
@@ -22,6 +32,12 @@ class Country(models.Model):
     """
 
     title = models.CharField(max_length=100)
+    region = models.ForeignKey(
+        Region,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.title

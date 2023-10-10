@@ -1,7 +1,7 @@
 from wagtail.snippets.models import register_snippet
 from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
 
-from bakerydemo.breads.models import BreadIngredient, BreadType, Country
+from bakerydemo.breads.models import BreadIngredient, BreadType, Country, Region
 
 
 class BreadIngredientSnippetViewSet(SnippetViewSet):
@@ -23,6 +23,12 @@ class CountrySnippetViewSet(SnippetViewSet):
     search_fields = ("title",)
 
 
+class RegionSnippetViewSet(SnippetViewSet):
+    model = Region
+    ordering = ("name",)
+    search_fields = ("name",)
+
+
 # We want to group several snippets together in the admin menu.
 # This is done by defining a SnippetViewSetGroup class that contains a list of
 # SnippetViewSet classes.
@@ -40,6 +46,7 @@ class BreadMenuGroup(SnippetViewSetGroup):
         BreadIngredientSnippetViewSet,
         BreadTypeSnippetViewSet,
         CountrySnippetViewSet,
+        RegionSnippetViewSet,
     )
 
 
