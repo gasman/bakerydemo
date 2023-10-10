@@ -1,3 +1,5 @@
+from django.utils.safestring import mark_safe
+from wagtail import hooks
 from wagtail.snippets.models import register_snippet
 from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
 
@@ -51,3 +53,37 @@ class BreadMenuGroup(SnippetViewSetGroup):
 
 
 register_snippet(BreadMenuGroup)
+
+
+@hooks.register('insert_editor_js')
+def editor_js():
+    return mark_safe(
+        """
+        <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+                const regionCheckboxes = document.querySelectorAll('input[name="regions"]');
+                const countryCheckboxes = document.querySelectorAll('input[name="countries_of_origin"]');
+                const setCountryVisibility = () => {
+                    const regionIsEnabled = {};
+                    for (const checkbox of regionCheckboxes) {
+                        regionIsEnabled[checkbox.value] = checkbox.checked;
+                    }
+                    for (const checkbox of countryCheckboxes) {
+                        const region = checkbox.dataset.region;
+                        if (regionIsEnabled[region]) {
+                            checkbox.parentNode.parentNode.style.display = 'block';
+                        } else {
+                            checkbox.parentNode.parentNode.style.display = 'none';
+                        }
+                    }
+                };
+                if (regionCheckboxes.length && countryCheckboxes.length) {
+                    setCountryVisibility();
+                    for (const checkbox of regionCheckboxes) {
+                        checkbox.addEventListener('change', setCountryVisibility);
+                    }
+                }
+            });
+        </script>
+        """
+    )
